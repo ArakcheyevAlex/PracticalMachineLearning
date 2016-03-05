@@ -1,7 +1,7 @@
 ## Introduction
 
-We have data, collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. One of values identifying the quality of the activity.
-Testing dataset doesn't have labels of activity quality. We need to predict quality of the activity using trayning dataset.
+We have the data, collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. One of values is identifying the quality of the activity.
+The testing dataset doesn't have labels of activity quality. We need to predict quality of the activity using training dataset.
 
 ## Getting and cleaning data
 
@@ -18,7 +18,7 @@ f_train <- read.csv(train_path, na.strings = c("NA", ""))
 f_test <- read.csv(test_path, na.strings = c("NA", ""))
 ```
 
-To estimate out-of-sample error, I splited randomly training dataset to 75% to training set, and 25% to testing set.
+To estimate out-of-sample error, I splited the training dataset randomly to 75% to the new training set, and 25% to the testing set.
 
 ```{r}
 inTrain <- createDataPartition(y = f_train$classe, p = 0.75, list = FALSE)
@@ -41,7 +41,7 @@ p_train <- p_train[, -(1:5)]
 p_test <- p_test[, -(1:5)]
 ```
 
-## Building model
+## Building a model
 First I decided try to use the Random Forest model, using 3-fold cross-validation.
 
 ```{r}
@@ -51,20 +51,20 @@ modRF1$finalModel
 ```
 
 
-I saw that out-of-sample error is 0.22%, it means that accuracity of this model is 99.78%.
-Looks good, and I decided to use this model to predict testing set values without changing any model's parameters.
+I found that out-of-sample error was 0.22%, it means that accuracy of this model is 99.78%.
+Looks good, and I decided to use this model to predict testing set values without tuning any model's parameters.
 
-Try to apply this model to my testing set:
+Applying this model to my testing set:
 ```{r}
 predictions <- predict(modRF1, p_test)
 confusionMatrix(p_test$classe, predictions)
 ```
 
-Accuracity on testing set is 99.65%. Very good result, and I can use this model to predict classes on original testing set of 20 cases.
+Accuracy on testing dataset is 99.65%. It is a great result, and I can use this model to predict classes on original testing dataset of 20 cases.
 
 ## Chekup model with the Testing Set
 
-Now I am using all of the training set to build prediction model. Preparing training and testing sets.
+Now I am using all of the training set to build prediction model. I prepare training and testing datasets.
 ```{r}
 nzv <- nearZeroVar(f_train)
 f_train <- f_train[, -nzv]
@@ -76,7 +76,7 @@ f_test <- f_test[, NA_mark == FALSE]
 f_train <- f_train[, -(1:5)]
 f_test <- f_test[, -(1:5)]
 ```
-Building model and predicting classes:
+I build the model and predict classes:
 ```{r}
 modRF2 <- train(classe ~ ., data = f_train, method = "rf", trControl = fitControl)
 modRF2$finalModel
