@@ -1,1 +1,12 @@
 ## Introduction
+
+In this project I have data collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. Data has label that identifying the quality of the activity.
+Testing dataset doesn't have labels of activity quality. I have to mark testing dataset with activity labels using trayning dataset.
+
+## Getting and cleaning data
+
+To make this work, I decided to use caret package. Then I load data from datasets.
+
+'''{r}
+test
+'''
