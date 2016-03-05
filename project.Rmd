@@ -5,7 +5,7 @@ Testing dataset doesn't have labels of activity quality. We need to predict qual
 
 ## Getting and cleaning data
 
-I decided to use caret package. Loading data from datasets:
+Loading data from datasets:
 
 ```{r}
 library(caret)
