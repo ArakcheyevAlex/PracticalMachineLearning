@@ -113,11 +113,11 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>In this project I have data collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. Data has label that identifying the quality of the activity. Testing dataset doesn’t have labels of activity quality. I have to mark testing dataset with activity labels using trayning dataset.</p>
+<p>We have the data, collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. One of values is identifying the quality of the activity. The testing dataset doesn’t have labels of activity quality. We need to predict quality of the activity using training dataset.</p>
 </div>
 <div id="getting-and-cleaning-data" class="section level2">
 <h2>Getting and cleaning data</h2>
-<p>To make this work, I decided to use caret package. Then I load data from datasets.</p>
+<p>Loading data from datasets:</p>
 <pre class="r"><code>library(caret)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
@@ -127,11 +127,11 @@ train_path &lt;- &quot;pml-training.csv&quot;
 test_path &lt;- &quot;pml-testing.csv&quot;
 f_train &lt;- read.csv(train_path, na.strings = c(&quot;NA&quot;, &quot;&quot;))
 f_test &lt;- read.csv(test_path, na.strings = c(&quot;NA&quot;, &quot;&quot;))</code></pre>
-<p>To estimate out-of-sample error, I split randomly training dataset to 75% to training set, and 25% to testing set.</p>
+<p>To estimate out-of-sample error, I splited the training dataset randomly to 75% to the new training set, and 25% to the testing set.</p>
 <pre class="r"><code>inTrain &lt;- createDataPartition(y = f_train$classe, p = 0.75, list = FALSE)
 p_train &lt;- f_train[inTrain, ]
 p_test &lt;- f_train[-inTrain, ]</code></pre>
-<p>Then I need to reduce number of features. I removed variables with nearly zero variance, that are have a lot of NA, and variables that I guess don’t have effect to prediction.</p>
+<p>To reduce number of features, I removed variables with nearly zero variance, having a lot of NA, and variables that don’t have effect to prediction.</p>
 <pre class="r"><code>nzv &lt;- nearZeroVar(p_train)
 p_train &lt;- p_train[, -nzv]
 p_test &lt;- p_test[, -nzv]
@@ -143,8 +143,8 @@ p_test &lt;- p_test[, NA_mark == FALSE]
 p_train &lt;- p_train[, -(1:5)]
 p_test &lt;- p_test[, -(1:5)]</code></pre>
 </div>
-<div id="building-model" class="section level2">
-<h2>Building model</h2>
+<div id="building-a-model" class="section level2">
+<h2>Building a model</h2>
 <p>First I decided try to use the Random Forest model, using 3-fold cross-validation.</p>
 <pre class="r"><code>fitControl &lt;- trainControl(method = &quot;cv&quot;, number = 3, verboseIter = FALSE)
 modRF1 &lt;- train(classe ~ ., data = p_train, method = &quot;rf&quot;, trControl = fitControl)</code></pre>
@@ -172,23 +172,8 @@ modRF1 &lt;- train(classe ~ ., data = p_train, method = &quot;rf&quot;, trContro
 ## C    0    5 2562    0    0 0.0019477990
 ## D    0    0   15 2397    0 0.0062189055
 ## E    0    0    0    1 2705 0.0003695492</code></pre>
-<p>Result of building:</p>
-<pre><code>Call:
- randomForest(x = x, y = y, mtry = param$mtry) 
-               Type of random forest: classification
-                     Number of trees: 500
-No. of variables tried at each split: 27
-
-        OOB estimate of  error rate: 0.22%
-Confusion matrix:
-     A    B    C    D    E  class.error
-A 4183    1    0    0    1 0.0004778973
-B    9 2835    3    1    0 0.0045646067
-C    0    6 2561    0    0 0.0023373588
-D    0    0    9 2403    0 0.0037313433
-E    0    1    0    2 2703 0.0011086475</code></pre>
-<p>I saw that out-of-sample error is 0.22%, it means that accuracity of this model is 99.78%. Looks good, and I decided to use this model to predict testing set values without changing any model’s parameters.</p>
-<p>Try to apply this model to my testing set:</p>
+<p>I found that out-of-sample error was 0.22%, it means that accuracy of this model is 99.78%. Looks good, and I decided to use this model to predict testing set values without tuning any model’s parameters.</p>
+<p>Applying this model to my testing set:</p>
 <pre class="r"><code>predictions &lt;- predict(modRF1, p_test)
 confusionMatrix(p_test$classe, predictions)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -222,43 +207,11 @@ confusionMatrix(p_test$classe, predictions)</code></pre>
 ## Detection Rate         0.2845   0.1931   0.1741   0.1637   0.1833
 ## Detection Prevalence   0.2845   0.1935   0.1743   0.1639   0.1837
 ## Balanced Accuracy      0.9993   0.9992   0.9993   0.9986   0.9998</code></pre>
-<p>Result:</p>
-<pre><code>Confusion Matrix and Statistics
-
-          Reference
-Prediction    A    B    C    D    E
-         A 1395    0    0    0    0
-         B    3  945    1    0    0
-         C    0    6  848    1    0
-         D    0    0    5  798    1
-         E    0    0    0    0  901
-
-Overall Statistics
-                                         
-               Accuracy : 0.9965         
-                 95% CI : (0.9945, 0.998)
-    No Information Rate : 0.2851         
-    P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-                                         
-                  Kappa : 0.9956         
- Mcnemar's Test P-Value : NA             
-
-Statistics by Class:
-
-                     Class: A Class: B Class: C Class: D Class: E
-Sensitivity            0.9979   0.9937   0.9930   0.9987   0.9989
-Specificity            1.0000   0.9990   0.9983   0.9985   1.0000
-Pos Pred Value         1.0000   0.9958   0.9918   0.9925   1.0000
-Neg Pred Value         0.9991   0.9985   0.9985   0.9998   0.9998
-Prevalence             0.2851   0.1939   0.1741   0.1629   0.1839
-Detection Rate         0.2845   0.1927   0.1729   0.1627   0.1837
-Detection Prevalence   0.2845   0.1935   0.1743   0.1639   0.1837
-Balanced Accuracy      0.9989   0.9963   0.9956   0.9986   0.9994</code></pre>
-<p>Accuracity on testing set is 99.65%. Very good result, and I can use this model to predict classes on original testing set of 20 cases.</p>
+<p>Accuracy on testing dataset is 99.65%. It is a great result, and I can use this model to predict classes on original testing dataset of 20 cases.</p>
 </div>
 <div id="chekup-model-with-the-testing-set" class="section level2">
 <h2>Chekup model with the Testing Set</h2>
-<p>Now I use all of training set to build prediction model. Prepare training and testing sets.</p>
+<p>Now I am using all of the training set to build prediction model. I prepare training and testing datasets.</p>
 <pre class="r"><code>nzv &lt;- nearZeroVar(f_train)
 f_train &lt;- f_train[, -nzv]
 f_test &lt;- f_test[, -nzv]
@@ -268,7 +221,7 @@ f_train &lt;- f_train[, NA_mark == FALSE]
 f_test &lt;- f_test[, NA_mark == FALSE]
 f_train &lt;- f_train[, -(1:5)]
 f_test &lt;- f_test[, -(1:5)]</code></pre>
-<p>Build model and predict classes:</p>
+<p>I build the model and predict classes:</p>
 <pre class="r"><code>modRF2 &lt;- train(classe ~ ., data = f_train, method = &quot;rf&quot;, trControl = fitControl)
 modRF2$finalModel</code></pre>
 <pre><code>## 
@@ -286,11 +239,10 @@ modRF2$finalModel</code></pre>
 ## C    0    5 3417    0    0 0.0014611338
 ## D    0    0    7 3208    1 0.0024875622
 ## E    0    0    0    3 3604 0.0008317161</code></pre>
-<pre class="r"><code>predictions &lt;- predict(modRF2, f_test)</code></pre>
-<p>Result:</p>
-<pre><code>&gt; predictions
- [1] B A B A A E D B A A B C B A E E A B B B
-Levels: A B C D E</code></pre>
+<pre class="r"><code>predictions &lt;- predict(modRF2, f_test)
+predictions</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
 <p>I uploaded this values to quiz of the course project, and got 20 of 20 points. It means that my model predicted 100% of values correctly.</p>
 </div>
 
