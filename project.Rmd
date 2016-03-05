@@ -7,6 +7,6 @@ Testing dataset doesn't have labels of activity quality. I have to mark testing 
 
 To make this work, I decided to use caret package. Then I load data from datasets.
 
-'''{r}
+```{r}
 test
-'''
+```
