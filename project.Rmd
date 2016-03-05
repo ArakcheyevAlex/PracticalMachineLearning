@@ -8,5 +8,48 @@ Testing dataset doesn't have labels of activity quality. I have to mark testing 
 To make this work, I decided to use caret package. Then I load data from datasets.
 
 ```{r}
-test
+library(caret)
+
+set.seed(9988)
+
+train_path <- "pml-training.csv"
+test_path <- "pml-testing.csv"
+f_train <- read.csv(train_path, na.strings = c("NA", ""))
+f_test <- read.csv(test_path, na.strings = c("NA", ""))
 ```
+
+To estimate out-of-sample error, I split randomly training dataset to 75% to training set, and 25% to testing set.
+
+```{r}
+inTrain <- createDataPartition(y = f_train$classe, p = 0.75, list = FALSE)
+p_train <- f_train[inTrain, ]
+p_test <- f_train[-inTrain, ]
+```
+
+Then I need to reduce number of features. I removed variables with nearly zero variance, that are have a lot of NA, and variables that I guess don't have effect to prediction.
+
+```{r}
+nzv <- nearZeroVar(p_train)
+p_train <- p_train[, -nzv]
+p_test <- p_test[, -nzv]
+
+NA_mark <- sapply(p_train, function(x) mean(is.na(x))) > 0.95
+p_train <- p_train[, NA_mark == FALSE]
+p_test <- p_test[, NA_mark == FALSE]
+
+p_train <- p_train[, -(1:5)]
+p_test <- p_test[, -(1:5)]
+```
+
+## Building model
+First I decide try to use the Random Forest model, using 3-fold cross-validation.
+
+```{r}
+fitControl <- trainControl(method = "cv", number = 3, verboseIter = FALSE)
+modRF1 <- train(classe ~ ., data = p_train, method = "rf", trControl = fitControl)
+modRF1$finalModel
+```
+
+
+
+
