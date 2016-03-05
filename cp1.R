@@ -29,13 +29,11 @@ fitControl <- trainControl(method = "cv", number = 3, verboseIter = FALSE)
 modRF1 <- train(classe ~ ., data = p_train, method = "rf", trControl = fitControl)
 modRF1$finalModel
 
-modRF1$xlevels
-
 predictions <- predict(modRF1, p_test)
 confusionMatrix(p_test$classe, predictions)
 
 ## real test
-nzv <- nearZeroVar(training)
+nzv <- nearZeroVar(f_train)
 f_train <- f_train[, -nzv]
 f_test <- f_test[, -nzv]
 dim(f_train)
@@ -52,3 +50,4 @@ modRF2$finalModel
 predictions <- predict(modRF2, f_test)
 
 predictions
+
