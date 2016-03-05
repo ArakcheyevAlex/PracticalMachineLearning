@@ -112,7 +112,7 @@ Balanced Accuracy      0.9989   0.9963   0.9956   0.9986   0.9994
 
 Accuracity on testing set is 99.65%. Very good result, and I can use this model to predict classes on original testing set of 20 cases.
 
-## Work with Testing Set
+## Chekup model with the Testing Set
 
 Now I use all of training set to build prediction model. Prepare training and testing sets.
 ```{r}
